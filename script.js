@@ -1,1 +1,1 @@
-console.log("Smart Task Manager loaded successfully");
+console.log("Base layout loaded");
