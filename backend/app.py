@@ -1,5 +1,6 @@
 from flask import Flask
 from config.db import test_connection
+from models.task import Task #temp
 
 app = Flask(__name__)
 
@@ -22,5 +23,14 @@ if __name__ == "__main__":
         print("MongoDB connected successfully")
     else:
         print("MongoDB connection failed")
+
+    sample_task = Task(
+        title="Finish backend setup",
+        description="Connect Flask to MongoDB Atlas",
+        due_date="2026-03-30",
+        priority="high"
+    )
+
+    print(sample_task.to_dict())
 
     app.run(debug=True)
