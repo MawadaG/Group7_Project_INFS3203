@@ -1,6 +1,6 @@
-from flask import Flask
-from config.db import test_connection
-from models.task import Task #temp
+from config.db import test_connection, db
+from flask import Flask, request, jsonify
+from models.task import Task
 
 app = Flask(__name__)
 
@@ -18,19 +18,36 @@ def db_health():
         return {"database": "connected"}
     return {"database": "not connected"}, 500
 
+@app.route("/tasks", methods=["POST"])
+def create_task():
+    data = request.get_json()
+
+    if not data or "title" not in data:
+        return jsonify({"error": "Title is required"}), 400
+
+    # creates the task
+    task = Task(
+        title=data.get("title"),
+        description=data.get("description", ""),
+        due_date=data.get("due_date"),
+        priority=data.get("priority", "low"),
+        status=data.get("status", "pending"),
+        project_id=data.get("project_id"),
+        subtasks=data.get("subtasks", [])
+    )
+
+    task_dict = task.to_dict()
+
+    result = db.tasks.insert_one(task_dict)
+
+    task_dict["_id"] = str(result.inserted_id)
+
+    return jsonify(task_dict), 201
+
 if __name__ == "__main__":
     if test_connection():
         print("MongoDB connected successfully")
     else:
         print("MongoDB connection failed")
-
-    sample_task = Task(
-        title="Finish backend setup",
-        description="Connect Flask to MongoDB Atlas",
-        due_date="2026-03-30",
-        priority="high"
-    )
-
-    print(sample_task.to_dict())
 
     app.run(debug=True)
