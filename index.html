@@ -23,11 +23,37 @@
 
     <main class="main-content">
       <header class="topbar">
-        <h1>Dashboard</h1>
+        <div>
+          <h1>Dashboard Overview</h1>
+          <p>Track your tasks and progress in one place.</p>
+        </div>
       </header>
 
-      <section class="content-placeholder">
-        <p>Main content will be added in the next issues.</p>
+      <section class="dashboard-cards">
+        <div class="dashboard-card">
+          <h3>Total Tasks</h3>
+          <p class="card-number" id="totalTasks">0</p>
+        </div>
+
+        <div class="dashboard-card">
+          <h3>Completed Tasks</h3>
+          <p class="card-number" id="completedTasks">0</p>
+        </div>
+
+        <div class="dashboard-card">
+          <h3>Pending Tasks</h3>
+          <p class="card-number" id="pendingTasks">0</p>
+        </div>
+      </section>
+
+      <section class="task-list-section">
+        <div class="section-header">
+          <h2>Task List</h2>
+          <button id="refreshBtn" class="refresh-btn">Refresh</button>
+        </div>
+
+        <p id="taskMessage" class="task-message">Loading tasks...</p>
+        <div id="taskList" class="task-list"></div>
       </section>
     </main>
   </div>
