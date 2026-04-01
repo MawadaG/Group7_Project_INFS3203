@@ -1,1 +1,1 @@
-console.log("Base layout loaded");
+console.log("Dashboard overview loaded successfully");
