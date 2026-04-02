@@ -46,6 +46,58 @@
         </div>
       </section>
 
+      <section class="form-section">
+        <div class="section-header">
+          <h2>Add New Task</h2>
+        </div>
+
+        <p id="formMessage" class="form-message"></p>
+
+        <form id="taskForm" class="task-form">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="title">Task Title *</label>
+              <input type="text" id="title" name="title" placeholder="Enter task title" required />
+            </div>
+
+            <div class="form-group">
+              <label for="due_date">Due Date</label>
+              <input type="date" id="due_date" name="due_date" />
+            </div>
+
+            <div class="form-group">
+              <label for="priority">Priority</label>
+              <select id="priority" name="priority">
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="status">Status</label>
+              <select id="status" name="status">
+                <option value="pending">Pending</option>
+                <option value="completed">Completed</option>
+                <option value="in-progress">In Progress</option>
+              </select>
+            </div>
+
+            <div class="form-group form-group-full">
+              <label for="project_id">Project ID (Optional)</label>
+              <input type="text" id="project_id" name="project_id" placeholder="Enter project ID" />
+            </div>
+
+            <div class="form-group form-group-full">
+              <label for="description">Description</label>
+              <textarea id="description" name="description" rows="4" placeholder="Enter task description"></textarea>
+            </div>
+          </div>
+
+          <button type="submit" class="submit-btn" id="submitBtn">Create Task</button>
+        </form>
+      </section>
+
       <section class="task-list-section">
         <div class="section-header">
           <h2>Task List</h2>

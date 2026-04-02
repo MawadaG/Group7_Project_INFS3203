@@ -8,6 +8,10 @@ const totalTasksEl = document.getElementById("totalTasks");
 const completedTasksEl = document.getElementById("completedTasks");
 const pendingTasksEl = document.getElementById("pendingTasks");
 
+const taskForm = document.getElementById("taskForm");
+const formMessage = document.getElementById("formMessage");
+const submitBtn = document.getElementById("submitBtn");
+
 function capitalizeText(text) {
   if (!text) return "Not set";
   return text
@@ -55,6 +59,14 @@ function renderEmptyState(message) {
 
 function renderErrorState(message) {
   taskList.innerHTML = `<div class="error-state">${message}</div>`;
+}
+
+function setFormMessage(message, type = "") {
+  formMessage.textContent = message;
+  formMessage.className = "form-message";
+  if (type) {
+    formMessage.classList.add(type);
+  }
 }
 
 function createTaskCard(task) {
@@ -109,6 +121,7 @@ async function loadTasks() {
     taskMessage.textContent = "";
 
     tasks.forEach((task) => {
+      taskList.appendChild(createTaskCard(task));
       const taskCard = createTaskCard(task);
       taskList.appendChild(taskCard);
     });
@@ -119,5 +132,65 @@ async function loadTasks() {
   }
 }
 
+async function handleTaskSubmit(event) {
+  event.preventDefault();
+
+  const title = document.getElementById("title").value.trim();
+  const description = document.getElementById("description").value.trim();
+  const due_date = document.getElementById("due_date").value;
+  const priority = document.getElementById("priority").value;
+  const status = document.getElementById("status").value;
+  const project_id = document.getElementById("project_id").value.trim();
+
+  if (!title) {
+    setFormMessage("Task title is required.", "error");
+    return;
+  }
+
+  const taskData = {
+    title,
+    description,
+    due_date,
+    priority,
+    status
+  };
+
+  if (project_id) {
+    taskData.project_id = project_id;
+  }
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Creating...";
+  setFormMessage("Submitting task...");
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/tasks`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(taskData)
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.error || "Failed to create task");
+    }
+
+    setFormMessage("Task created successfully.", "success");
+    taskForm.reset();
+    await loadTasks();
+  } catch (error) {
+    console.error("Error creating task:", error);
+    setFormMessage(error.message || "Could not create task.", "error");
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Create Task";
+  }
+}
+
+refreshBtn.addEventListener("click", loadTasks);
+taskForm.addEventListener("submit", handleTaskSubmit);
 refreshBtn.addEventListener("click", loadTasks);
 document.addEventListener("DOMContentLoaded", loadTasks);
