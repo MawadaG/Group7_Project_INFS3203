@@ -14,10 +14,10 @@
       </div>
 
       <nav class="nav-menu">
-        <a href="#" class="nav-item active">Dashboard</a>
-        <a href="#" class="nav-item">Tasks</a>
-        <a href="#" class="nav-item">Projects</a>
-        <a href="#" class="nav-item">Reminders</a>
+        <a href="javascript:void(0)" class="nav-item active">Dashboard</a>
+        <a href="javascript:void(0)" class="nav-item">Tasks</a>
+        <a href="javascript:void(0)" class="nav-item">Projects</a>
+        <a href="javascript:void(0)" class="nav-item">Reminders</a>
       </nav>
     </aside>
 
@@ -32,20 +32,16 @@
       <section class="dashboard-cards">
         <div class="dashboard-card">
           <h3>Total Tasks</h3>
-          <p class="card-number">12</p>
           <p class="card-number" id="totalTasks">0</p>
         </div>
 
         <div class="dashboard-card">
           <h3>Completed Tasks</h3>
-          <p class="card-number">5</p>
           <p class="card-number" id="completedTasks">0</p>
         </div>
 
         <div class="dashboard-card">
           <h3>Pending Tasks</h3>
-          <p class="card-number">7</p>
-        </div>
           <p class="card-number" id="pendingTasks">0</p>
         </div>
       </section>
@@ -125,6 +121,15 @@
         <div id="taskList" class="task-list"></div>
       </section>
 
+      <section class="projects-section">
+        <div class="section-header">
+          <h2>Projects</h2>
+        </div>
+
+        <p id="projectMessage" class="task-message">Loading projects...</p>
+        <div id="projectList" class="project-list"></div>
+      </section>
+
       <section class="reminders-section">
         <div class="section-header">
           <h2>Reminders & Overdue Tasks</h2>
@@ -143,13 +148,6 @@
             <div id="upcomingList" class="reminder-list"></div>
           </div>
         </div>
-      <section class="projects-section">
-        <div class="section-header">
-          <h2>Projects</h2>
-        </div>
-
-        <p id="projectMessage" class="task-message">Loading projects...</p>
-        <div id="projectList" class="project-list"></div>
       </section>
     </main>
   </div>
