@@ -122,6 +122,8 @@ async function loadTasks() {
 
     tasks.forEach((task) => {
       taskList.appendChild(createTaskCard(task));
+      const taskCard = createTaskCard(task);
+      taskList.appendChild(taskCard);
     });
   } catch (error) {
     console.error("Error loading tasks:", error);
@@ -190,4 +192,5 @@ async function handleTaskSubmit(event) {
 
 refreshBtn.addEventListener("click", loadTasks);
 taskForm.addEventListener("submit", handleTaskSubmit);
+refreshBtn.addEventListener("click", loadTasks);
 document.addEventListener("DOMContentLoaded", loadTasks);

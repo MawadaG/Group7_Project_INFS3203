@@ -79,6 +79,7 @@ body {
 .dashboard-card,
 .form-section,
 .task-list-section {
+.dashboard-card {
   background-color: white;
   padding: 24px;
   border-radius: 16px;
@@ -99,6 +100,11 @@ body {
 
 .form-section {
   margin-bottom: 30px;
+.task-list-section {
+  background-color: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
 }
 
 .section-header {
@@ -183,6 +189,14 @@ body {
 
 .refresh-btn {
   background-color: #111827;
+.refresh-btn {
+  background-color: #111827;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
 }
 
 .refresh-btn:hover {
@@ -202,6 +216,9 @@ body {
 
 .form-message.error {
   color: #b91c1c;
+.task-message {
+  color: #6b7280;
+  margin-bottom: 16px;
 }
 
 .task-list {
@@ -302,6 +319,7 @@ body {
 @media (max-width: 900px) {
   .dashboard-cards,
   .form-grid {
+  .dashboard-cards {
     grid-template-columns: 1fr;
   }
 }
