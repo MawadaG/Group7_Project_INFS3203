@@ -17,6 +17,10 @@ const clearSubtasksBtn = document.getElementById("clearSubtasksBtn");
 const subtasksMessage = document.getElementById("subtasksMessage");
 const subtasksList = document.getElementById("subtasksList");
 
+const overdueList = document.getElementById("overdueList");
+const upcomingList = document.getElementById("upcomingList");
+const overdueMessage = document.getElementById("overdueMessage");
+const upcomingMessage = document.getElementById("upcomingMessage");
 const projectList = document.getElementById("projectList");
 const projectMessage = document.getElementById("projectMessage");
 
@@ -132,6 +136,69 @@ function createTaskCard(task) {
   return taskCard;
 }
 
+function isOverdue(task) {
+  if (!task.due_date) return false;
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const dueDate = new Date(task.due_date);
+  dueDate.setHours(0, 0, 0, 0);
+
+  return dueDate < today && (task.status || "").toLowerCase() !== "completed";
+}
+
+function isUpcoming(task) {
+  if (!task.due_date) return false;
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const dueDate = new Date(task.due_date);
+  dueDate.setHours(0, 0, 0, 0);
+
+  const diffTime = dueDate - today;
+  const diffDays = diffTime / (1000 * 60 * 60 * 24);
+
+  return diffDays >= 0 && diffDays <= 3 && (task.status || "").toLowerCase() !== "completed";
+}
+
+function renderReminderItem(task, type) {
+  const div = document.createElement("div");
+  div.className = `reminder-item ${type === "overdue" ? "overdue-item" : "upcoming-item"}`;
+  div.innerHTML = `
+    <h4>${task.title || "Untitled Task"}</h4>
+    <p>Due: ${formatDate(task.due_date)}</p>
+  `;
+  return div;
+}
+
+function renderReminders(tasks) {
+  overdueList.innerHTML = "";
+  upcomingList.innerHTML = "";
+
+  const overdueTasks = tasks.filter(isOverdue);
+  const upcomingTasks = tasks.filter(isUpcoming);
+
+  if (overdueTasks.length === 0) {
+    overdueMessage.textContent = "";
+    overdueList.innerHTML = `<div class="reminder-empty-state">No overdue tasks.</div>`;
+  } else {
+    overdueMessage.textContent = "";
+    overdueTasks.forEach((task) => {
+      overdueList.appendChild(renderReminderItem(task, "overdue"));
+    });
+  }
+
+  if (upcomingTasks.length === 0) {
+    upcomingMessage.textContent = "";
+    upcomingList.innerHTML = `<div class="reminder-empty-state">No upcoming tasks.</div>`;
+  } else {
+    upcomingMessage.textContent = "";
+    upcomingTasks.forEach((task) => {
+      upcomingList.appendChild(renderReminderItem(task, "upcoming"));
+    });
+  }
 function renderProjectEmptyState(message) {
   projectList.innerHTML = `<div class="project-empty-state">${message}</div>`;
 }
@@ -201,6 +268,11 @@ function renderProjects(tasks) {
 
 async function loadTasks() {
   taskMessage.textContent = "Loading tasks...";
+  overdueMessage.textContent = "Checking overdue tasks...";
+  upcomingMessage.textContent = "Checking upcoming tasks...";
+  taskList.innerHTML = "";
+  overdueList.innerHTML = "";
+  upcomingList.innerHTML = "";
   projectMessage.textContent = "Loading projects...";
   taskList.innerHTML = "";
   projectList.innerHTML = "";
@@ -220,6 +292,11 @@ async function loadTasks() {
     if (!Array.isArray(tasks) || tasks.length === 0) {
       updateDashboardCards([]);
       taskMessage.textContent = "";
+      renderEmptyState("No tasks available yet.");
+      overdueMessage.textContent = "";
+      upcomingMessage.textContent = "";
+      overdueList.innerHTML = `<div class="reminder-empty-state">No overdue tasks.</div>`;
+      upcomingList.innerHTML = `<div class="reminder-empty-state">No upcoming tasks.</div>`;
       projectMessage.textContent = "";
       renderEmptyState("No tasks available yet.");
       renderProjectEmptyState("No projects available yet.");
@@ -234,6 +311,15 @@ async function loadTasks() {
       taskList.appendChild(createTaskCard(task));
     });
 
+    renderReminders(tasks);
+  } catch (error) {
+    console.error("Error loading tasks:", error);
+    taskMessage.textContent = "";
+    overdueMessage.textContent = "";
+    upcomingMessage.textContent = "";
+    renderErrorState("Could not load tasks. Make sure the backend is running.");
+    overdueList.innerHTML = `<div class="error-state">Could not load overdue tasks.</div>`;
+    upcomingList.innerHTML = `<div class="error-state">Could not load upcoming tasks.</div>`;
     renderProjects(tasks);
   } catch (error) {
     console.error("Error loading tasks:", error);
@@ -361,6 +447,7 @@ clearSubtasksBtn.addEventListener("click", clearGeneratedSubtasks);
 document.addEventListener("DOMContentLoaded", () => {
   renderGeneratedSubtasks();
   loadTasks();
+});
 });
 });
 refreshBtn.addEventListener("click", loadTasks);
