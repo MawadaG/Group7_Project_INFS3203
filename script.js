@@ -1,4 +1,3 @@
-console.log("Dashboard overview loaded successfully");
 const API_BASE_URL = "http://127.0.0.1:5000";
 
 const taskList = document.getElementById("taskList");
@@ -22,6 +21,7 @@ const overdueList = document.getElementById("overdueList");
 const upcomingList = document.getElementById("upcomingList");
 const overdueMessage = document.getElementById("overdueMessage");
 const upcomingMessage = document.getElementById("upcomingMessage");
+
 const projectList = document.getElementById("projectList");
 const projectMessage = document.getElementById("projectMessage");
 
@@ -79,12 +79,12 @@ function renderErrorState(message) {
 function setFormMessage(message, type = "") {
   formMessage.textContent = message;
   formMessage.className = "form-message";
-  if (type) {
-    formMessage.classList.add(type);
-  }
+  if (type) formMessage.classList.add(type);
 }
 
 function renderGeneratedSubtasks() {
+  if (!subtasksList || !subtasksMessage) return;
+
   subtasksList.innerHTML = "";
 
   if (generatedSubtasks.length === 0) {
@@ -175,6 +175,8 @@ function renderReminderItem(task, type) {
 }
 
 function renderReminders(tasks) {
+  if (!overdueList || !upcomingList || !overdueMessage || !upcomingMessage) return;
+
   overdueList.innerHTML = "";
   upcomingList.innerHTML = "";
 
@@ -200,15 +202,21 @@ function renderReminders(tasks) {
       upcomingList.appendChild(renderReminderItem(task, "upcoming"));
     });
   }
+}
+
 function renderProjectEmptyState(message) {
+  if (!projectList) return;
   projectList.innerHTML = `<div class="project-empty-state">${message}</div>`;
 }
 
 function renderProjectErrorState(message) {
+  if (!projectList) return;
   projectList.innerHTML = `<div class="project-error-state">${message}</div>`;
 }
 
 function renderProjects(tasks) {
+  if (!projectList || !projectMessage) return;
+
   projectList.innerHTML = "";
 
   if (!Array.isArray(tasks) || tasks.length === 0) {
@@ -220,10 +228,9 @@ function renderProjects(tasks) {
   const groupedProjects = {};
 
   tasks.forEach((task) => {
+    const rawProjectId = task.project_id ?? "";
     const projectKey =
-      task.project_id && task.project_id.trim()
-        ? task.project_id.trim()
-        : "No Project";
+      String(rawProjectId).trim() !== "" ? String(rawProjectId).trim() : "No Project";
 
     if (!groupedProjects[projectKey]) {
       groupedProjects[projectKey] = [];
@@ -269,17 +276,19 @@ function renderProjects(tasks) {
 
 async function loadTasks() {
   taskMessage.textContent = "Loading tasks...";
-  overdueMessage.textContent = "Checking overdue tasks...";
-  upcomingMessage.textContent = "Checking upcoming tasks...";
   taskList.innerHTML = "";
-  overdueList.innerHTML = "";
-  upcomingList.innerHTML = "";
-  projectMessage.textContent = "Loading projects...";
-  taskList.innerHTML = "";
-  projectList.innerHTML = "";
-async function loadTasks() {
-  taskMessage.textContent = "Loading tasks...";
-  taskList.innerHTML = "";
+
+  if (projectMessage) {
+    projectMessage.textContent = "Loading projects...";
+    projectList.innerHTML = "";
+  }
+
+  if (overdueMessage && upcomingMessage && overdueList && upcomingList) {
+    overdueMessage.textContent = "Checking overdue tasks...";
+    upcomingMessage.textContent = "Checking upcoming tasks...";
+    overdueList.innerHTML = "";
+    upcomingList.innerHTML = "";
+  }
 
   try {
     const response = await fetch(`${API_BASE_URL}/tasks`);
@@ -294,14 +303,19 @@ async function loadTasks() {
       updateDashboardCards([]);
       taskMessage.textContent = "";
       renderEmptyState("No tasks available yet.");
-      overdueMessage.textContent = "";
-      upcomingMessage.textContent = "";
-      overdueList.innerHTML = `<div class="reminder-empty-state">No overdue tasks.</div>`;
-      upcomingList.innerHTML = `<div class="reminder-empty-state">No upcoming tasks.</div>`;
-      projectMessage.textContent = "";
-      renderEmptyState("No tasks available yet.");
-      renderProjectEmptyState("No projects available yet.");
-      renderEmptyState("No tasks available yet.");
+
+      if (projectMessage) {
+        projectMessage.textContent = "";
+        renderProjectEmptyState("No projects available yet.");
+      }
+
+      if (overdueMessage && upcomingMessage && overdueList && upcomingList) {
+        overdueMessage.textContent = "";
+        upcomingMessage.textContent = "";
+        overdueList.innerHTML = `<div class="reminder-empty-state">No overdue tasks.</div>`;
+        upcomingList.innerHTML = `<div class="reminder-empty-state">No upcoming tasks.</div>`;
+      }
+
       return;
     }
 
@@ -312,26 +326,24 @@ async function loadTasks() {
       taskList.appendChild(createTaskCard(task));
     });
 
+    renderProjects(tasks);
     renderReminders(tasks);
   } catch (error) {
     console.error("Error loading tasks:", error);
     taskMessage.textContent = "";
-    overdueMessage.textContent = "";
-    upcomingMessage.textContent = "";
     renderErrorState("Could not load tasks. Make sure the backend is running.");
-    overdueList.innerHTML = `<div class="error-state">Could not load overdue tasks.</div>`;
-    upcomingList.innerHTML = `<div class="error-state">Could not load upcoming tasks.</div>`;
-    renderProjects(tasks);
-  } catch (error) {
-    console.error("Error loading tasks:", error);
-    taskMessage.textContent = "";
-    projectMessage.textContent = "";
-    renderErrorState("Could not load tasks. Make sure the backend is running.");
-    renderProjectErrorState("Could not load project view.");
-  } catch (error) {
-    console.error("Error loading tasks:", error);
-    taskMessage.textContent = "";
-    renderErrorState("Could not load tasks. Make sure the backend is running.");
+
+    if (projectMessage) {
+      projectMessage.textContent = "";
+      renderProjectErrorState("Could not load project view.");
+    }
+
+    if (overdueMessage && upcomingMessage && overdueList && upcomingList) {
+      overdueMessage.textContent = "";
+      upcomingMessage.textContent = "";
+      overdueList.innerHTML = `<div class="error-state">Could not load overdue tasks.</div>`;
+      upcomingList.innerHTML = `<div class="error-state">Could not load upcoming tasks.</div>`;
+    }
   }
 }
 
@@ -440,16 +452,12 @@ async function handleTaskSubmit(event) {
   }
 }
 
-refreshBtn.addEventListener("click", loadTasks);
-taskForm.addEventListener("submit", handleTaskSubmit);
-generateBtn.addEventListener("click", handleGenerateSubtasks);
-clearSubtasksBtn.addEventListener("click", clearGeneratedSubtasks);
+if (refreshBtn) refreshBtn.addEventListener("click", loadTasks);
+if (taskForm) taskForm.addEventListener("submit", handleTaskSubmit);
+if (generateBtn) generateBtn.addEventListener("click", handleGenerateSubtasks);
+if (clearSubtasksBtn) clearSubtasksBtn.addEventListener("click", clearGeneratedSubtasks);
 
 document.addEventListener("DOMContentLoaded", () => {
   renderGeneratedSubtasks();
   loadTasks();
 });
-});
-});
-refreshBtn.addEventListener("click", loadTasks);
-document.addEventListener("DOMContentLoaded", loadTasks);
