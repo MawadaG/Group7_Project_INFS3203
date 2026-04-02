@@ -80,6 +80,7 @@ body {
 .form-section,
 .task-list-section,
 .projects-section {
+.task-list-section {
   background-color: white;
   padding: 24px;
   border-radius: 16px;
@@ -290,6 +291,7 @@ body {
 .error-state,
 .project-empty-state,
 .project-error-state {
+.error-state {
   padding: 20px;
   border-radius: 12px;
   text-align: center;
@@ -298,12 +300,14 @@ body {
 
 .empty-state,
 .project-empty-state {
+.empty-state {
   background-color: #f9fafb;
   color: #6b7280;
 }
 
 .error-state,
 .project-error-state {
+.error-state {
   background-color: #fee2e2;
   color: #b91c1c;
 }
@@ -411,6 +415,9 @@ body {
   .dashboard-cards,
   .form-grid,
   .project-list {
+@media (max-width: 900px) {
+  .dashboard-cards,
+  .form-grid {
     grid-template-columns: 1fr;
   }
 }

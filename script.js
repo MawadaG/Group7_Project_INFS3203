@@ -204,6 +204,9 @@ async function loadTasks() {
   projectMessage.textContent = "Loading projects...";
   taskList.innerHTML = "";
   projectList.innerHTML = "";
+async function loadTasks() {
+  taskMessage.textContent = "Loading tasks...";
+  taskList.innerHTML = "";
 
   try {
     const response = await fetch(`${API_BASE_URL}/tasks`);
@@ -220,6 +223,7 @@ async function loadTasks() {
       projectMessage.textContent = "";
       renderEmptyState("No tasks available yet.");
       renderProjectEmptyState("No projects available yet.");
+      renderEmptyState("No tasks available yet.");
       return;
     }
 
@@ -237,6 +241,10 @@ async function loadTasks() {
     projectMessage.textContent = "";
     renderErrorState("Could not load tasks. Make sure the backend is running.");
     renderProjectErrorState("Could not load project view.");
+  } catch (error) {
+    console.error("Error loading tasks:", error);
+    taskMessage.textContent = "";
+    renderErrorState("Could not load tasks. Make sure the backend is running.");
   }
 }
 
@@ -354,3 +362,6 @@ document.addEventListener("DOMContentLoaded", () => {
   renderGeneratedSubtasks();
   loadTasks();
 });
+});
+refreshBtn.addEventListener("click", loadTasks);
+document.addEventListener("DOMContentLoaded", loadTasks);
