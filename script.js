@@ -12,6 +12,13 @@ const taskForm = document.getElementById("taskForm");
 const formMessage = document.getElementById("formMessage");
 const submitBtn = document.getElementById("submitBtn");
 
+const generateBtn = document.getElementById("generateBtn");
+const clearSubtasksBtn = document.getElementById("clearSubtasksBtn");
+const subtasksMessage = document.getElementById("subtasksMessage");
+const subtasksList = document.getElementById("subtasksList");
+
+let generatedSubtasks = [];
+
 function capitalizeText(text) {
   if (!text) return "Not set";
   return text
@@ -69,6 +76,31 @@ function setFormMessage(message, type = "") {
   }
 }
 
+function renderGeneratedSubtasks() {
+  subtasksList.innerHTML = "";
+
+  if (generatedSubtasks.length === 0) {
+    subtasksMessage.textContent = "No subtasks generated yet.";
+    subtasksMessage.className = "form-message";
+    return;
+  }
+
+  subtasksMessage.textContent = `Generated ${generatedSubtasks.length} subtasks.`;
+  subtasksMessage.className = "form-message success";
+
+  generatedSubtasks.forEach((subtask, index) => {
+    const li = document.createElement("li");
+    li.className = "subtask-item";
+    li.textContent = `${index + 1}. ${subtask}`;
+    subtasksList.appendChild(li);
+  });
+}
+
+function clearGeneratedSubtasks() {
+  generatedSubtasks = [];
+  renderGeneratedSubtasks();
+}
+
 function createTaskCard(task) {
   const taskCard = document.createElement("div");
   taskCard.className = "task-card";
@@ -122,13 +154,56 @@ async function loadTasks() {
 
     tasks.forEach((task) => {
       taskList.appendChild(createTaskCard(task));
-      const taskCard = createTaskCard(task);
-      taskList.appendChild(taskCard);
     });
   } catch (error) {
     console.error("Error loading tasks:", error);
     taskMessage.textContent = "";
     renderErrorState("Could not load tasks. Make sure the backend is running.");
+  }
+}
+
+async function handleGenerateSubtasks() {
+  const title = document.getElementById("title").value.trim();
+  const description = document.getElementById("description").value.trim();
+
+  if (!title) {
+    setFormMessage("Enter a task title before generating subtasks.", "error");
+    return;
+  }
+
+  generateBtn.disabled = true;
+  generateBtn.textContent = "Generating...";
+  subtasksMessage.textContent = "Generating subtasks...";
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/generate-subtasks`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        title,
+        description
+      })
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.error || "Failed to generate subtasks");
+    }
+
+    generatedSubtasks = Array.isArray(result.subtasks) ? result.subtasks : [];
+    renderGeneratedSubtasks();
+    setFormMessage("Subtasks generated successfully.", "success");
+  } catch (error) {
+    console.error("Error generating subtasks:", error);
+    generatedSubtasks = [];
+    renderGeneratedSubtasks();
+    setFormMessage(error.message || "Could not generate subtasks.", "error");
+  } finally {
+    generateBtn.disabled = false;
+    generateBtn.textContent = "Generate Subtasks";
   }
 }
 
@@ -152,7 +227,8 @@ async function handleTaskSubmit(event) {
     description,
     due_date,
     priority,
-    status
+    status,
+    subtasks: generatedSubtasks
   };
 
   if (project_id) {
@@ -180,6 +256,7 @@ async function handleTaskSubmit(event) {
 
     setFormMessage("Task created successfully.", "success");
     taskForm.reset();
+    clearGeneratedSubtasks();
     await loadTasks();
   } catch (error) {
     console.error("Error creating task:", error);
@@ -192,5 +269,12 @@ async function handleTaskSubmit(event) {
 
 refreshBtn.addEventListener("click", loadTasks);
 taskForm.addEventListener("submit", handleTaskSubmit);
+generateBtn.addEventListener("click", handleGenerateSubtasks);
+clearSubtasksBtn.addEventListener("click", clearGeneratedSubtasks);
+
+document.addEventListener("DOMContentLoaded", () => {
+  renderGeneratedSubtasks();
+  loadTasks();
+});
 refreshBtn.addEventListener("click", loadTasks);
 document.addEventListener("DOMContentLoaded", loadTasks);
