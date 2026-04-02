@@ -21,6 +21,8 @@ const overdueList = document.getElementById("overdueList");
 const upcomingList = document.getElementById("upcomingList");
 const overdueMessage = document.getElementById("overdueMessage");
 const upcomingMessage = document.getElementById("upcomingMessage");
+const projectList = document.getElementById("projectList");
+const projectMessage = document.getElementById("projectMessage");
 
 let generatedSubtasks = [];
 
@@ -197,6 +199,71 @@ function renderReminders(tasks) {
       upcomingList.appendChild(renderReminderItem(task, "upcoming"));
     });
   }
+function renderProjectEmptyState(message) {
+  projectList.innerHTML = `<div class="project-empty-state">${message}</div>`;
+}
+
+function renderProjectErrorState(message) {
+  projectList.innerHTML = `<div class="project-error-state">${message}</div>`;
+}
+
+function renderProjects(tasks) {
+  projectList.innerHTML = "";
+
+  if (!Array.isArray(tasks) || tasks.length === 0) {
+    projectMessage.textContent = "";
+    renderProjectEmptyState("No projects available yet.");
+    return;
+  }
+
+  const groupedProjects = {};
+
+  tasks.forEach((task) => {
+    const projectKey =
+      task.project_id && task.project_id.trim()
+        ? task.project_id.trim()
+        : "No Project";
+
+    if (!groupedProjects[projectKey]) {
+      groupedProjects[projectKey] = [];
+    }
+
+    groupedProjects[projectKey].push(task);
+  });
+
+  const projectNames = Object.keys(groupedProjects);
+
+  if (projectNames.length === 0) {
+    projectMessage.textContent = "";
+    renderProjectEmptyState("No projects available yet.");
+    return;
+  }
+
+  projectMessage.textContent = "";
+
+  projectNames.forEach((projectName) => {
+    const projectCard = document.createElement("div");
+    projectCard.className = "project-card";
+
+    const projectTasks = groupedProjects[projectName];
+
+    const taskItems = projectTasks
+      .map((task) => {
+        const title = task.title || "Untitled Task";
+        return `<li class="project-task-item">${title}</li>`;
+      })
+      .join("");
+
+    projectCard.innerHTML = `
+      <h3>${projectName}</h3>
+      <p>${projectTasks.length} task(s)</p>
+      <ul class="project-task-list">
+        ${taskItems}
+      </ul>
+    `;
+
+    projectList.appendChild(projectCard);
+  });
 }
 
 async function loadTasks() {
@@ -206,6 +273,12 @@ async function loadTasks() {
   taskList.innerHTML = "";
   overdueList.innerHTML = "";
   upcomingList.innerHTML = "";
+  projectMessage.textContent = "Loading projects...";
+  taskList.innerHTML = "";
+  projectList.innerHTML = "";
+async function loadTasks() {
+  taskMessage.textContent = "Loading tasks...";
+  taskList.innerHTML = "";
 
   try {
     const response = await fetch(`${API_BASE_URL}/tasks`);
@@ -224,6 +297,10 @@ async function loadTasks() {
       upcomingMessage.textContent = "";
       overdueList.innerHTML = `<div class="reminder-empty-state">No overdue tasks.</div>`;
       upcomingList.innerHTML = `<div class="reminder-empty-state">No upcoming tasks.</div>`;
+      projectMessage.textContent = "";
+      renderEmptyState("No tasks available yet.");
+      renderProjectEmptyState("No projects available yet.");
+      renderEmptyState("No tasks available yet.");
       return;
     }
 
@@ -243,6 +320,17 @@ async function loadTasks() {
     renderErrorState("Could not load tasks. Make sure the backend is running.");
     overdueList.innerHTML = `<div class="error-state">Could not load overdue tasks.</div>`;
     upcomingList.innerHTML = `<div class="error-state">Could not load upcoming tasks.</div>`;
+    renderProjects(tasks);
+  } catch (error) {
+    console.error("Error loading tasks:", error);
+    taskMessage.textContent = "";
+    projectMessage.textContent = "";
+    renderErrorState("Could not load tasks. Make sure the backend is running.");
+    renderProjectErrorState("Could not load project view.");
+  } catch (error) {
+    console.error("Error loading tasks:", error);
+    taskMessage.textContent = "";
+    renderErrorState("Could not load tasks. Make sure the backend is running.");
   }
 }
 
@@ -360,3 +448,7 @@ document.addEventListener("DOMContentLoaded", () => {
   renderGeneratedSubtasks();
   loadTasks();
 });
+});
+});
+refreshBtn.addEventListener("click", loadTasks);
+document.addEventListener("DOMContentLoaded", loadTasks);
