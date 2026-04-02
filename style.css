@@ -78,6 +78,8 @@ body {
 
 .dashboard-card,
 .form-section,
+.task-list-section,
+.projects-section {
 .task-list-section {
   background-color: white;
   padding: 24px;
@@ -98,6 +100,10 @@ body {
 }
 
 .form-section {
+  margin-bottom: 30px;
+}
+
+.task-list-section {
   margin-bottom: 30px;
 }
 
@@ -282,6 +288,9 @@ body {
 }
 
 .empty-state,
+.error-state,
+.project-empty-state,
+.project-error-state {
 .error-state {
   padding: 20px;
   border-radius: 12px;
@@ -289,11 +298,15 @@ body {
   font-size: 15px;
 }
 
+.empty-state,
+.project-empty-state {
 .empty-state {
   background-color: #f9fafb;
   color: #6b7280;
 }
 
+.error-state,
+.project-error-state {
 .error-state {
   background-color: #fee2e2;
   color: #b91c1c;
@@ -357,6 +370,51 @@ body {
   color: #374151;
 }
 
+.project-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px;
+}
+
+.project-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 18px;
+  background-color: #fafafa;
+}
+
+.project-card h3 {
+  font-size: 18px;
+  margin-bottom: 8px;
+  color: #111827;
+}
+
+.project-card p {
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 12px;
+}
+
+.project-task-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.project-task-item {
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 14px;
+  color: #374151;
+}
+
+@media (max-width: 900px) {
+  .dashboard-cards,
+  .form-grid,
+  .project-list {
 @media (max-width: 900px) {
   .dashboard-cards,
   .form-grid {

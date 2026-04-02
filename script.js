@@ -17,6 +17,9 @@ const clearSubtasksBtn = document.getElementById("clearSubtasksBtn");
 const subtasksMessage = document.getElementById("subtasksMessage");
 const subtasksList = document.getElementById("subtasksList");
 
+const projectList = document.getElementById("projectList");
+const projectMessage = document.getElementById("projectMessage");
+
 let generatedSubtasks = [];
 
 function capitalizeText(text) {
@@ -129,6 +132,78 @@ function createTaskCard(task) {
   return taskCard;
 }
 
+function renderProjectEmptyState(message) {
+  projectList.innerHTML = `<div class="project-empty-state">${message}</div>`;
+}
+
+function renderProjectErrorState(message) {
+  projectList.innerHTML = `<div class="project-error-state">${message}</div>`;
+}
+
+function renderProjects(tasks) {
+  projectList.innerHTML = "";
+
+  if (!Array.isArray(tasks) || tasks.length === 0) {
+    projectMessage.textContent = "";
+    renderProjectEmptyState("No projects available yet.");
+    return;
+  }
+
+  const groupedProjects = {};
+
+  tasks.forEach((task) => {
+    const projectKey =
+      task.project_id && task.project_id.trim()
+        ? task.project_id.trim()
+        : "No Project";
+
+    if (!groupedProjects[projectKey]) {
+      groupedProjects[projectKey] = [];
+    }
+
+    groupedProjects[projectKey].push(task);
+  });
+
+  const projectNames = Object.keys(groupedProjects);
+
+  if (projectNames.length === 0) {
+    projectMessage.textContent = "";
+    renderProjectEmptyState("No projects available yet.");
+    return;
+  }
+
+  projectMessage.textContent = "";
+
+  projectNames.forEach((projectName) => {
+    const projectCard = document.createElement("div");
+    projectCard.className = "project-card";
+
+    const projectTasks = groupedProjects[projectName];
+
+    const taskItems = projectTasks
+      .map((task) => {
+        const title = task.title || "Untitled Task";
+        return `<li class="project-task-item">${title}</li>`;
+      })
+      .join("");
+
+    projectCard.innerHTML = `
+      <h3>${projectName}</h3>
+      <p>${projectTasks.length} task(s)</p>
+      <ul class="project-task-list">
+        ${taskItems}
+      </ul>
+    `;
+
+    projectList.appendChild(projectCard);
+  });
+}
+
+async function loadTasks() {
+  taskMessage.textContent = "Loading tasks...";
+  projectMessage.textContent = "Loading projects...";
+  taskList.innerHTML = "";
+  projectList.innerHTML = "";
 async function loadTasks() {
   taskMessage.textContent = "Loading tasks...";
   taskList.innerHTML = "";
@@ -145,6 +220,9 @@ async function loadTasks() {
     if (!Array.isArray(tasks) || tasks.length === 0) {
       updateDashboardCards([]);
       taskMessage.textContent = "";
+      projectMessage.textContent = "";
+      renderEmptyState("No tasks available yet.");
+      renderProjectEmptyState("No projects available yet.");
       renderEmptyState("No tasks available yet.");
       return;
     }
@@ -155,6 +233,14 @@ async function loadTasks() {
     tasks.forEach((task) => {
       taskList.appendChild(createTaskCard(task));
     });
+
+    renderProjects(tasks);
+  } catch (error) {
+    console.error("Error loading tasks:", error);
+    taskMessage.textContent = "";
+    projectMessage.textContent = "";
+    renderErrorState("Could not load tasks. Make sure the backend is running.");
+    renderProjectErrorState("Could not load project view.");
   } catch (error) {
     console.error("Error loading tasks:", error);
     taskMessage.textContent = "";
@@ -275,6 +361,7 @@ clearSubtasksBtn.addEventListener("click", clearGeneratedSubtasks);
 document.addEventListener("DOMContentLoaded", () => {
   renderGeneratedSubtasks();
   loadTasks();
+});
 });
 refreshBtn.addEventListener("click", loadTasks);
 document.addEventListener("DOMContentLoaded", loadTasks);
