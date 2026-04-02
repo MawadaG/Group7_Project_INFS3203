@@ -276,3 +276,5 @@ document.addEventListener("DOMContentLoaded", () => {
   renderGeneratedSubtasks();
   loadTasks();
 });
+refreshBtn.addEventListener("click", loadTasks);
+document.addEventListener("DOMContentLoaded", loadTasks);
