@@ -73,6 +73,9 @@ body {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
+}
+
+.dashboard-card {
   margin-bottom: 30px;
 }
 
@@ -100,6 +103,8 @@ body {
   color: #111827;
 }
 
+@media (max-width: 900px) {
+  .dashboard-cards {
 .form-section {
   margin-bottom: 30px;
 }
@@ -466,6 +471,11 @@ body {
 
 @media (max-width: 768px) {
   .app-layout {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
     flex-direction: column;
   }
 
