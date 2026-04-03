@@ -11,10 +11,12 @@
     <aside class="sidebar">
       <div class="logo">
         <h2>Smart Task Manager</h2>
+        <p>Plan, track, and complete work with AI support.</p>
       </div>
 
       <nav class="nav-menu">
         <a href="#dashboard" class="nav-item active">Dashboard</a>
+        <a href="#taskCreator" class="nav-item">Add Task</a>
         <a href="#tasks" class="nav-item">Tasks</a>
         <a href="#projects" class="nav-item">Projects</a>
         <a href="#reminders" class="nav-item">Reminders</a>
@@ -25,7 +27,7 @@
       <header class="topbar" id="dashboard">
         <div>
           <h1>Dashboard Overview</h1>
-          <p>Track your tasks and progress in one place.</p>
+          <p>Track your tasks, priorities, deadlines, and AI-generated subtasks in one place.</p>
         </div>
       </header>
 
@@ -44,11 +46,36 @@
           <h3>Pending Tasks</h3>
           <p class="card-number" id="pendingTasks">0</p>
         </div>
+
+        <div class="dashboard-card">
+          <h3>High Priority</h3>
+          <p class="card-number" id="highPriorityTasks">0</p>
+        </div>
+
+        <div class="dashboard-card">
+          <h3>Overdue Tasks</h3>
+          <p class="card-number" id="overdueTasksCount">0</p>
+        </div>
       </section>
 
-      <section class="form-section">
+      <section class="progress-section">
+        <div class="section-header compact-header">
+          <div>
+            <h2>Task Progress</h2>
+            <p id="progressLabel" class="section-subtext">0% completed</p>
+          </div>
+        </div>
+        <div class="progress-track" aria-label="Task completion progress">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+      </section>
+
+      <section class="form-section" id="taskCreator">
         <div class="section-header">
-          <h2>Add New Task</h2>
+          <div>
+            <h2>Add New Task</h2>
+            <p class="section-subtext">Create a task, generate AI subtasks, and review everything before saving.</p>
+          </div>
         </div>
 
         <p id="formMessage" class="form-message"></p>
@@ -102,8 +129,16 @@
 
         <div class="subtasks-section">
           <div class="section-header subtasks-header">
-            <h3>Generated Subtasks</h3>
-            <button type="button" class="clear-btn" id="clearSubtasksBtn">Clear</button>
+            <div>
+              <h3>Generated Subtasks</h3>
+              <p class="section-subtext">You can edit, remove, or add your own subtasks before saving.</p>
+            </div>
+            <button type="button" class="clear-btn" id="clearSubtasksBtn">Clear All</button>
+          </div>
+
+          <div class="subtask-builder">
+            <input type="text" id="manualSubtaskInput" placeholder="Add a manual subtask" />
+            <button type="button" class="secondary-btn" id="addManualSubtaskBtn">Add Subtask</button>
           </div>
 
           <p id="subtasksMessage" class="form-message">No subtasks generated yet.</p>
@@ -112,9 +147,64 @@
       </section>
 
       <section class="task-list-section" id="tasks">
-        <div class="section-header">
-          <h2>Task List</h2>
+        <div class="section-header task-tools-header">
+          <div>
+            <h2>Task List</h2>
+            <p class="section-subtext" id="taskResultsSummary">Showing all tasks.</p>
+          </div>
           <button id="refreshBtn" class="refresh-btn">Refresh</button>
+        </div>
+
+        <div class="task-toolbar">
+          <div class="toolbar-grid">
+            <div class="toolbar-item toolbar-search">
+              <label for="searchInput">Search</label>
+              <input type="text" id="searchInput" placeholder="Search by title or description" />
+            </div>
+
+            <div class="toolbar-item">
+              <label for="priorityFilter">Priority</label>
+              <select id="priorityFilter">
+                <option value="all">All</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+              </select>
+            </div>
+
+            <div class="toolbar-item">
+              <label for="statusFilter">Status</label>
+              <select id="statusFilter">
+                <option value="all">All</option>
+                <option value="pending">Pending</option>
+                <option value="in-progress">In Progress</option>
+                <option value="completed">Completed</option>
+              </select>
+            </div>
+
+            <div class="toolbar-item">
+              <label for="projectFilter">Project</label>
+              <select id="projectFilter">
+                <option value="all">All Projects</option>
+              </select>
+            </div>
+
+            <div class="toolbar-item">
+              <label for="sortTasks">Sort By</label>
+              <select id="sortTasks">
+                <option value="due-asc">Due Date (Nearest)</option>
+                <option value="due-desc">Due Date (Latest)</option>
+                <option value="priority-desc">Priority (High to Low)</option>
+                <option value="priority-asc">Priority (Low to High)</option>
+                <option value="title-asc">Title (A-Z)</option>
+                <option value="status-asc">Status</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="toolbar-actions">
+            <button type="button" class="clear-btn" id="clearFiltersBtn">Clear Filters</button>
+          </div>
         </div>
 
         <p id="taskMessage" class="task-message">Loading tasks...</p>
@@ -123,7 +213,10 @@
 
       <section class="projects-section" id="projects">
         <div class="section-header">
-          <h2>Projects</h2>
+          <div>
+            <h2>Projects</h2>
+            <p class="section-subtext">Tasks grouped by project so your demo looks structured and organized.</p>
+          </div>
         </div>
 
         <p id="projectMessage" class="task-message">Loading projects...</p>
@@ -132,7 +225,10 @@
 
       <section class="reminders-section" id="reminders">
         <div class="section-header">
-          <h2>Reminders & Overdue Tasks</h2>
+          <div>
+            <h2>Reminders & Overdue Tasks</h2>
+            <p class="section-subtext">A clear reminder view makes the app more demo-friendly and useful.</p>
+          </div>
         </div>
 
         <div class="reminders-grid">
@@ -150,6 +246,69 @@
         </div>
       </section>
     </main>
+  </div>
+
+  <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+  <div class="modal-overlay hidden" id="editModalOverlay">
+    <div class="modal-card">
+      <div class="section-header modal-header">
+        <div>
+          <h2>Edit Task</h2>
+          <p class="section-subtext">Update task details and save the changes.</p>
+        </div>
+        <button type="button" class="icon-btn" id="closeEditModalBtn" aria-label="Close edit modal">×</button>
+      </div>
+
+      <form id="editTaskForm" class="task-form">
+        <input type="hidden" id="editTaskId" />
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="editTitle">Task Title *</label>
+            <input type="text" id="editTitle" required />
+          </div>
+
+          <div class="form-group">
+            <label for="editDueDate">Due Date</label>
+            <input type="date" id="editDueDate" />
+          </div>
+
+          <div class="form-group">
+            <label for="editPriority">Priority</label>
+            <select id="editPriority">
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="editStatus">Status</label>
+            <select id="editStatus">
+              <option value="pending">Pending</option>
+              <option value="completed">Completed</option>
+              <option value="in-progress">In Progress</option>
+            </select>
+          </div>
+
+          <div class="form-group form-group-full">
+            <label for="editProjectId">Project ID</label>
+            <input type="text" id="editProjectId" />
+          </div>
+
+          <div class="form-group form-group-full">
+            <label for="editDescription">Description</label>
+            <textarea id="editDescription" rows="4"></textarea>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="clear-btn" id="cancelEditBtn">Cancel</button>
+          <button type="submit" class="submit-btn" id="saveEditBtn">Save Changes</button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <script src="script.js"></script>
