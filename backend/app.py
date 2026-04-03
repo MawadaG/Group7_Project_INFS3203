@@ -44,6 +44,7 @@ def api_generate_subtasks():
             "count": len(subtasks)
         })
     except Exception as e:
+        print(f"Error in api_generate_subtasks: {e}")  # Add this for debugging
         return jsonify({"error": str(e)}), 500
 
 # ==================== TASK ENDPOINTS ====================

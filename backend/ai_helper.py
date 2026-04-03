@@ -10,11 +10,10 @@ MODEL = "gemini-2.0-flash"  # Changed from gemini-2.5-flash-lite
 API_ENDPOINT = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent"
 
 def _call(prompt: str) -> str:
-    """Make API call to Gemini"""
-    api_key = os.getenv("GEMINI_API_KEY")  # Changed from GEMINI_KEY to match your .env
+    api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
         print("GEMINI_API_KEY not set")
-        return "[]"
+        return "[]"  # Return empty JSON array as string
     
     url = f"{API_ENDPOINT}?key={api_key}"
     
