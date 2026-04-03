@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from config.db import test_connection, db
+from config.db import test_connection, get_db
 from ai_helper import generate_subtasks, enhance_task_with_subtasks
 from models.task import Task
 import os
@@ -73,6 +73,9 @@ def create_task():
             )
         
         task_dict = task.to_dict()
+        db = get_db()
+        if db is None:
+            return jsonify({"error": "Database connection not available"}), 500
         result = db.tasks.insert_one(task_dict)
         task_dict["_id"] = str(result.inserted_id)
         
@@ -85,6 +88,10 @@ def generate_task_subtasks(task_id):
     try:
         data = request.get_json() or {}
         
+        db = get_db()
+        if db is None:
+            return jsonify({"error": "Database connection not available"}), 500
+            
         task_doc = db.tasks.find_one({"_id": ObjectId(task_id)})
         
         if not task_doc:
@@ -112,6 +119,10 @@ def generate_task_subtasks(task_id):
 @app.route("/tasks", methods=["GET"])
 def get_tasks():
     try:
+        db = get_db()
+        if db is None:
+            return jsonify({"error": "Database connection not available"}), 500
+            
         tasks = []
         for task in db.tasks.find():
             task["_id"] = str(task["_id"])
@@ -123,6 +134,10 @@ def get_tasks():
 @app.route("/tasks/<task_id>", methods=["GET"])
 def get_task(task_id):
     try:
+        db = get_db()
+        if db is None:
+            return jsonify({"error": "Database connection not available"}), 500
+            
         task = db.tasks.find_one({"_id": ObjectId(task_id)})
         if not task:
             return jsonify({"error": "Task not found"}), 404
