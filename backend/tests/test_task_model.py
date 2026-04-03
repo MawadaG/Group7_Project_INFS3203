@@ -1,8 +1,13 @@
+import sys
+import os
+
+# Add backend directory to Python path
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import pytest
 from models.task import Task
 
 def test_task_creation():
-    """Test basic task creation"""
     task = Task(
         title="Complete project",
         description="Finish the INFS3203 project",
@@ -16,7 +21,6 @@ def test_task_creation():
     assert task.subtasks == []
 
 def test_task_to_dict():
-    """Test task to dictionary conversion"""
     task = Task(
         title="Test task",
         subtasks=["Subtask 1", "Subtask 2"]
@@ -29,7 +33,6 @@ def test_task_to_dict():
     assert task_dict["status"] == "pending"
 
 def test_task_with_subtasks():
-    """Test task with AI-generated subtasks"""
     task = Task(
         title="Write report",
         subtasks=["Research", "Write draft", "Review", "Submit"]
@@ -37,3 +40,13 @@ def test_task_with_subtasks():
     
     assert len(task.subtasks) == 4
     assert task.subtasks[0] == "Research"
+
+def test_task_default_values():
+    task = Task(title="Minimal task")
+    
+    assert task.description == ""
+    assert task.priority == "low"
+    assert task.status == "pending"
+    assert task.due_date is None
+    assert task.project_id is None
+    assert task.subtasks == []
