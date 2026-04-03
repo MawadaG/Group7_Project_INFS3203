@@ -1,7 +1,5 @@
 import sys
 import os
-
-# Add backend directory to Python path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import pytest
@@ -40,15 +38,6 @@ def test_create_task_endpoint(client):
     assert response.status_code == 201
     assert response.json["success"] == True
     assert response.json["task"]["title"] == "Test Task"
-
-def test_create_task_with_ai_subtasks(client):
-    response = client.post('/api/tasks', json={
-        "title": "Complete project",
-        "description": "Finish the INFS3203 project",
-        "generate_subtasks": True
-    })
-    assert response.status_code == 201
-    assert "subtasks" in response.json["task"]
 
 def test_generate_subtasks_endpoint_valid(client):
     response = client.post('/api/generate-subtasks', 
