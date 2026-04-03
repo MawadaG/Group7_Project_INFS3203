@@ -14,15 +14,15 @@
       </div>
 
       <nav class="nav-menu">
-        <a href="javascript:void(0)" class="nav-item active">Dashboard</a>
-        <a href="javascript:void(0)" class="nav-item">Tasks</a>
-        <a href="javascript:void(0)" class="nav-item">Projects</a>
-        <a href="javascript:void(0)" class="nav-item">Reminders</a>
+        <a href="#dashboard" class="nav-item active">Dashboard</a>
+        <a href="#tasks" class="nav-item">Tasks</a>
+        <a href="#projects" class="nav-item">Projects</a>
+        <a href="#reminders" class="nav-item">Reminders</a>
       </nav>
     </aside>
 
     <main class="main-content">
-      <header class="topbar">
+      <header class="topbar" id="dashboard">
         <div>
           <h1>Dashboard Overview</h1>
           <p>Track your tasks and progress in one place.</p>
@@ -111,7 +111,7 @@
         </div>
       </section>
 
-      <section class="task-list-section">
+      <section class="task-list-section" id="tasks">
         <div class="section-header">
           <h2>Task List</h2>
           <button id="refreshBtn" class="refresh-btn">Refresh</button>
@@ -121,7 +121,7 @@
         <div id="taskList" class="task-list"></div>
       </section>
 
-      <section class="projects-section">
+      <section class="projects-section" id="projects">
         <div class="section-header">
           <h2>Projects</h2>
         </div>
@@ -130,7 +130,7 @@
         <div id="projectList" class="project-list"></div>
       </section>
 
-      <section class="reminders-section">
+      <section class="reminders-section" id="reminders">
         <div class="section-header">
           <h2>Reminders & Overdue Tasks</h2>
         </div>
