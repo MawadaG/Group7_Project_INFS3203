@@ -4,6 +4,10 @@
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   font-family: Arial, sans-serif;
   background-color: #f5f7fb;
@@ -53,6 +57,13 @@ body {
 .main-content {
   flex: 1;
   padding: 30px;
+}
+
+.topbar,
+.task-list-section,
+.projects-section,
+.reminders-section {
+  scroll-margin-top: 20px;
 }
 
 .topbar {
