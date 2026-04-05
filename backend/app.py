@@ -2,10 +2,11 @@ from flask import Flask, request, jsonify
 from config.db import test_connection, get_db
 from ai_helper import generate_subtasks
 from bson import ObjectId
+from flask_cors import CORS
 import os
 
 app = Flask(__name__)
-
+CORS(app)
 
 @app.route("/")
 def home():
@@ -139,6 +140,48 @@ def get_task(task_id):
         print(f"Error in get_task: {e}")
         return jsonify({"error": str(e)}), 500
 
+@app.route("/tasks/<task_id>", methods=["PUT"])
+def update_task(task_id):
+    try:
+        if not request.is_json:
+            return jsonify({"error": "Request must be JSON"}), 400
+
+        data = request.get_json(silent=True)
+
+        if not data:
+            return jsonify({"error": "Request body is required"}), 400
+
+        db = get_db()
+        if db is None:
+            return jsonify({"error": "Database connection not available"}), 500
+
+        existing_task = db.tasks.find_one({"_id": ObjectId(task_id)})
+        if not existing_task:
+            return jsonify({"error": "Task not found"}), 404
+
+        updated_fields = {
+            "title": data.get("title", existing_task.get("title")),
+            "description": data.get("description", existing_task.get("description", "")),
+            "due_date": data.get("due_date", existing_task.get("due_date")),
+            "priority": data.get("priority", existing_task.get("priority", "low")),
+            "status": data.get("status", existing_task.get("status", "pending")),
+            "project_id": data.get("project_id", existing_task.get("project_id")),
+            "subtasks": data.get("subtasks", existing_task.get("subtasks", []))
+        }
+
+        db.tasks.update_one(
+            {"_id": ObjectId(task_id)},
+            {"$set": updated_fields}
+        )
+
+        updated_task = db.tasks.find_one({"_id": ObjectId(task_id)})
+        updated_task["_id"] = str(updated_task["_id"])
+
+        return jsonify(updated_task), 200
+
+    except Exception as e:
+        print(f"Error in update_task: {e}")
+        return jsonify({"error": str(e)}), 500
 
 @app.route("/tasks/<task_id>/subtasks", methods=["POST"])
 def generate_task_subtasks(task_id):
