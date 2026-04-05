@@ -118,6 +118,28 @@ function createTaskCard(task) {
   const dueDate = formatDate(task.due_date);
   const priority = capitalizeText(task.priority || "low");
   const status = capitalizeText(task.status || "pending");
+  const deleteBtn = document.createElement("button");
+
+  deleteBtn.textContent = "Delete";
+  deleteBtn.className = "secondary-btn";
+
+  deleteBtn.addEventListener("click", async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/tasks/${task._id}`, {
+        method: "DELETE"
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete task");
+      }
+
+      // Refresh tasks after deletion
+      loadTasks();
+
+    } catch (error) {
+      console.error("Error deleting task:", error);
+    }
+  });
 
   taskCard.innerHTML = `
     <div class="task-card-header">
@@ -133,6 +155,8 @@ function createTaskCard(task) {
       <span class="badge status-pending">Due: ${dueDate}</span>
     </div>
   `;
+
+    taskCard.appendChild(deleteBtn);
 
   return taskCard;
 }
