@@ -205,6 +205,31 @@ def delete_task(task_id):
         print(f"Error in delete_task: {e}")
         return jsonify({"error": str(e)}), 500
 
+@app.route("/tasks/<task_id>/complete", methods=["PATCH"])
+def complete_task(task_id):
+    try:
+        db = get_db()
+        if db is None:
+            return jsonify({"error": "Database connection not available"}), 500
+
+        existing_task = db.tasks.find_one({"_id": ObjectId(task_id)})
+        if not existing_task:
+            return jsonify({"error": "Task not found"}), 404
+
+        db.tasks.update_one(
+            {"_id": ObjectId(task_id)},
+            {"$set": {"status": "completed"}}
+        )
+
+        updated_task = db.tasks.find_one({"_id": ObjectId(task_id)})
+        updated_task["_id"] = str(updated_task["_id"])
+
+        return jsonify(updated_task), 200
+
+    except Exception as e:
+        print(f"Error in complete_task: {e}")
+        return jsonify({"error": str(e)}), 500
+
 @app.route("/tasks/<task_id>/subtasks", methods=["POST"])
 def generate_task_subtasks(task_id):
     try:
