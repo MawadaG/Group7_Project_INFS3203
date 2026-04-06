@@ -26,6 +26,7 @@ const projectList = document.getElementById("projectList");
 const projectMessage = document.getElementById("projectMessage");
 
 let generatedSubtasks = [];
+let editingTaskId = null;
 
 function capitalizeText(text) {
   if (!text) return "Not set";
@@ -121,6 +122,8 @@ function createTaskCard(task) {
   const deleteBtn = document.createElement("button");
   const completeBtn = document.createElement("button");
   const actionsDiv = document.createElement("div");
+  const editBtn = document.createElement("button");
+
 
   deleteBtn.textContent = "Delete";
   deleteBtn.className = "secondary-btn";
@@ -180,8 +183,17 @@ function createTaskCard(task) {
     </div>
   `;
 
+  editBtn.textContent = "Edit";
+  editBtn.className = "secondary-btn";
+  editBtn.type = "button";
+
+  editBtn.addEventListener("click", () => {
+    startEditTask(task);
+  });
+
   actionsDiv.className = "form-actions";
 
+  actionsDiv.appendChild(editBtn);
   actionsDiv.appendChild(completeBtn);
   actionsDiv.appendChild(deleteBtn);
 
@@ -400,6 +412,25 @@ async function loadTasks() {
   }
 }
 
+function startEditTask(task) {
+  editingTaskId = task._id;
+
+  document.getElementById("title").value = task.title || "";
+  document.getElementById("description").value = task.description || "";
+  document.getElementById("due_date").value = task.due_date || "";
+  document.getElementById("priority").value = task.priority || "low";
+  document.getElementById("status").value = task.status || "pending";
+  document.getElementById("project_id").value = task.project_id || "";
+
+  generatedSubtasks = Array.isArray(task.subtasks) ? task.subtasks : [];
+  renderGeneratedSubtasks();
+
+  submitBtn.textContent = "Update Task";
+  setFormMessage("Editing task. Update the fields and submit.", "success");
+
+  document.getElementById("taskForm").scrollIntoView({ behavior: "smooth" });
+}
+
 async function handleGenerateSubtasks() {
   const title = document.getElementById("title").value.trim();
   const description = document.getElementById("description").value.trim();
@@ -478,16 +509,22 @@ async function handleTaskSubmit(event) {
   setFormMessage("Submitting task...");
 
   try {
-    const response = await fetch(`${API_BASE_URL}/tasks`, {
-      method: "POST",
+    const method = editingTaskId ? "PUT" : "POST";
+    const url = editingTaskId
+      ? `${API_BASE_URL}/tasks/${editingTaskId}`
+      : `${API_BASE_URL}/tasks`;
+
+    const response = await fetch(url, {
+      method,
       headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify(taskData)
     });
 
-    const result = await response.json();
-
+    editingTaskId = null;
+    submitBtn.textContent = "Add Task";
+    
     if (!response.ok) {
       throw new Error(result.error || "Failed to create task");
     }
@@ -503,6 +540,7 @@ async function handleTaskSubmit(event) {
     submitBtn.disabled = false;
     submitBtn.textContent = "Create Task";
   }
+  
 }
 
 function setupSidebarNavigation() {
