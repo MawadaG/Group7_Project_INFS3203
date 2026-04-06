@@ -51,14 +51,15 @@ jobs:
     
     - name: Smoke test container
       run: |
-        docker run -d -p 5000:5000 \
+        docker run -d -p 10000:10000 \
+          -e PORT=10000 \
           -e MONGO_URI="${{ secrets.MongoDB_URI }}" \
           -e MONGO_DB_NAME="System_Deployment" \
           -e GEMINI_API_KEY="${{ secrets.Gemini_API_KEY }}" \
           --name test-container \
           ${{ secrets.DockerHub_USERNAME }}/smart-task-manager:${{ github.sha }}
-        sleep 5
-        curl --fail http://localhost:5000/health || exit 1
+        sleep 8
+        curl --fail http://localhost:10000/health || exit 1
         docker stop test-container
         docker rm test-container
     
@@ -72,4 +73,6 @@ jobs:
           ${{ secrets.DockerHub_USERNAME }}/smart-task-manager:latest
           ${{ secrets.DockerHub_USERNAME }}/smart-task-manager:${{ github.sha }}
 
- 
+    - name: Trigger Render deploy
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      run: curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
