@@ -27,9 +27,9 @@ jobs:
     
     - name: Run tests
       env:
-        MONGO_URI: ${{ secrets.MongoDB_URI }}
-        MONGO_DB_NAME: System_Deployment
-        GEMINI_API_KEY: ${{ secrets.Gemini_API_KEY }}
+        MONGO_URI: ${{ secrets.MONGOURI }}
+        MONGO_DB_NAME: ${{ secrets.MONGODB_NAME }}
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       run: |
         cd backend
         pytest tests/ -v --cov=. --cov-report=term-missing
@@ -37,8 +37,8 @@ jobs:
     - name: Login to Docker Hub
       uses: docker/login-action@v3
       with:
-        username: ${{ secrets.DockerHub_USERNAME }}
-        password: ${{ secrets.DockerHub_TOKEN }}
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
     
     - name: Build and test Docker image
       uses: docker/build-push-action@v5
@@ -46,20 +46,19 @@ jobs:
         context: .
         push: false
         tags: |
-          ${{ secrets.DockerHub_USERNAME }}/smart-task-manager:latest
-          ${{ secrets.DockerHub_USERNAME }}/smart-task-manager:${{ github.sha }}
+          ${{ secrets.DOCKERHUB_USERNAME }}/smart-task-manager:latest
+          ${{ secrets.DOCKERHUB_USERNAME }}/smart-task-manager:${{ github.sha }}
     
     - name: Smoke test container
       run: |
-        docker run -d -p 10000:10000 \
-          -e PORT=10000 \
-          -e MONGO_URI="${{ secrets.MongoDB_URI }}" \
-          -e MONGO_DB_NAME="System_Deployment" \
-          -e GEMINI_API_KEY="${{ secrets.Gemini_API_KEY }}" \
+        docker run -d -p 5000:5000 \
+          -e MONGO_URI="${{ secrets.MONGOURI }}" \
+          -e MONGO_DB_NAME="${{ secrets.MONGODB_NAME }}" \
+          -e GEMINI_API_KEY="${{ secrets.GEMINI_API_KEY }}" \
           --name test-container \
-          ${{ secrets.DockerHub_USERNAME }}/smart-task-manager:${{ github.sha }}
-        sleep 8
-        curl --fail http://localhost:10000/health || exit 1
+          ${{ secrets.DOCKERHUB_USERNAME }}/smart-task-manager:${{ github.sha }}
+        sleep 5
+        curl --fail http://localhost:5000/health || exit 1
         docker stop test-container
         docker rm test-container
     
@@ -70,9 +69,9 @@ jobs:
         context: .
         push: true
         tags: |
-          ${{ secrets.DockerHub_USERNAME }}/smart-task-manager:latest
-          ${{ secrets.DockerHub_USERNAME }}/smart-task-manager:${{ github.sha }}
+          ${{ secrets.DOCKERHUB_USERNAME }}/smart-task-manager:latest
+          ${{ secrets.DOCKERHUB_USERNAME }}/smart-task-manager:${{ github.sha }}
 
     - name: Trigger Render deploy
       if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-      run: curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
+      run: curl -X POST "${{ secrets.RENDER_DEPLOY_URL }}"
