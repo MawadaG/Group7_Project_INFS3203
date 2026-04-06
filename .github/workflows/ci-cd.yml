@@ -27,8 +27,8 @@ jobs:
     
     - name: Run tests
       env:
-        MONGO_URI: ${{ secrets.MONGO_URI }}
-        MONGO_DB_NAME: test_db
+        MONGO_URI: ${{ secrets.MONGOURI }}
+        MONGO_DB_NAME: ${{ secrets.MONGODB_NAME }}
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       run: |
         cd backend
@@ -52,10 +52,9 @@ jobs:
     - name: Smoke test container
       run: |
         docker run -d -p 5000:5000 \
-          -e MONGO_URI="${{ secrets.MONGO_URI }}" \
-          -e MONGO_DB_NAME="smart_task_manager" \
+          -e MONGO_URI="${{ secrets.MONGOURI }}" \
+          -e MONGO_DB_NAME="${{ secrets.MONGODB_NAME }}" \
           -e GEMINI_API_KEY="${{ secrets.GEMINI_API_KEY }}" \
-          -e STUDENT_ID="${{ secrets.STUDENT_ID }}" \
           --name test-container \
           ${{ secrets.DOCKERHUB_USERNAME }}/smart-task-manager:${{ github.sha }}
         sleep 5
@@ -73,12 +72,8 @@ jobs:
           ${{ secrets.DOCKERHUB_USERNAME }}/smart-task-manager:latest
           ${{ secrets.DOCKERHUB_USERNAME }}/smart-task-manager:${{ github.sha }}
 
-  deploy:
-    needs: test-and-build
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Trigger Render Deploy
-      run: |
-        curl -X POST "${{ secrets.RENDER_DEPLOY_URL }}"
+    - name: Trigger Render deploy
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      run: curl -X POST "${{ secrets.RENDER_DEPLOY_URL }}"
+
+      
