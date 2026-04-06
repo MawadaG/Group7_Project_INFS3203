@@ -15,7 +15,7 @@ COPY backend/ ./backend/
 WORKDIR /app/backend
 
 # Expose port
-EXPOSE 5000
+EXPOSE 10000
 
 # Run with gunicorn for production
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app"]
+CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:${PORT:-10000} app:app"]

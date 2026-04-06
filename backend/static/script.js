@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://127.0.0.1:5000";
+const API_BASE_URL = "";
 
 const taskList = document.getElementById("taskList");
 const taskMessage = document.getElementById("taskMessage");
@@ -553,6 +553,9 @@ function setupSidebarNavigation() {
     });
   });
 }
+
+fetch(`${API_BASE_URL}/tasks`)
+fetch(`${API_BASE_URL}/api/generate-subtasks`)
 
 if (refreshBtn) refreshBtn.addEventListener("click", loadTasks);
 if (taskForm) taskForm.addEventListener("submit", handleTaskSubmit);

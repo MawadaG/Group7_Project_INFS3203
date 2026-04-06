@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify,render_template
 from config.db import test_connection, get_db
 from ai_helper import generate_subtasks
 from bson import ObjectId
@@ -10,7 +10,7 @@ CORS(app)
 
 @app.route("/")
 def home():
-    return "Smart Task Manager Backend Running"
+    return render_template("index.html")
 
 
 @app.route("/health")
