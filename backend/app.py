@@ -183,6 +183,28 @@ def update_task(task_id):
         print(f"Error in update_task: {e}")
         return jsonify({"error": str(e)}), 500
 
+@app.route("/tasks/<task_id>", methods=["DELETE"])
+def delete_task(task_id):
+    try:
+        db = get_db()
+        if db is None:
+            return jsonify({"error": "Database connection not available"}), 500
+
+        existing_task = db.tasks.find_one({"_id": ObjectId(task_id)})
+        if not existing_task:
+            return jsonify({"error": "Task not found"}), 404
+
+        db.tasks.delete_one({"_id": ObjectId(task_id)})
+
+        return jsonify({
+            "message": "Task deleted successfully",
+            "task_id": task_id
+        }), 200
+
+    except Exception as e:
+        print(f"Error in delete_task: {e}")
+        return jsonify({"error": str(e)}), 500
+
 @app.route("/tasks/<task_id>/subtasks", methods=["POST"])
 def generate_task_subtasks(task_id):
     try:
