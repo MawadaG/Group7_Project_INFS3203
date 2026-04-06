@@ -6,14 +6,16 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-MODEL = "gemini-2.0-flash"  # Changed from gemini-2.5-flash-lite
-API_ENDPOINT = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent"
+# Use the Vertex AI endpoint (instructor's requirement)
+MODEL = "gemini-2.5-flash-lite"
+API_ENDPOINT = f"https://aiplatform.googleapis.com/v1/publishers/google/models/{MODEL}:generateContent"
 
 def _call(prompt: str) -> str:
+    """Make API call to Gemini using Vertex AI endpoint"""
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
         print("GEMINI_API_KEY not set")
-        return "[]"  # Return empty JSON array as string
+        return "[]"
     
     url = f"{API_ENDPOINT}?key={api_key}"
     
@@ -27,11 +29,17 @@ def _call(prompt: str) -> str:
     }
     
     try:
+        print(f"Calling API: {url}")  # Debug
         response = requests.post(url, json=payload, headers={"Content-Type": "application/json"})
-        response.raise_for_status()
+        print(f"Response status: {response.status_code}")  # Debug
+        
+        if response.status_code != 200:
+            print(f"Error response: {response.text}")
+            return "[]"
         
         result = response.json()
         return result["candidates"][0]["content"]["parts"][0]["text"]
+        
     except Exception as e:
         print(f"Gemini API error: {e}")
         return "[]"
@@ -56,11 +64,16 @@ Example format: ["Subtask 1", "Subtask 2", "Subtask 3"]"""
     
     try:
         response_text = _call(prompt)
+        print(f"Raw response: {response_text}")  # Debug
         cleaned = _clean_json(response_text)
         subtasks = json.loads(cleaned)
         
         if isinstance(subtasks, list):
             return subtasks
+        return []
+    except json.JSONDecodeError as e:
+        print(f"JSON decode error: {e}")
+        print(f"Failed to parse: {cleaned}")
         return []
     except Exception as e:
         print(f"Error generating subtasks: {e}")
