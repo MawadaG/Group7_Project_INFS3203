@@ -119,6 +119,8 @@ function createTaskCard(task) {
   const priority = capitalizeText(task.priority || "low");
   const status = capitalizeText(task.status || "pending");
   const deleteBtn = document.createElement("button");
+  const completeBtn = document.createElement("button");
+  const actionsDiv = document.createElement("div");
 
   deleteBtn.textContent = "Delete";
   deleteBtn.className = "secondary-btn";
@@ -141,6 +143,28 @@ function createTaskCard(task) {
     }
   });
 
+  completeBtn.textContent = "Complete";
+  completeBtn.className = "submit-btn";
+  completeBtn.type = "button";
+  completeBtn.style.marginRight = "10px";
+
+  completeBtn.addEventListener("click", async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/tasks/${task._id}/complete`, {
+        method: "PATCH"
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to complete task");
+      }
+
+      await loadTasks();
+    } catch (error) {
+      console.error("Error completing task:", error);
+      taskMessage.textContent = "Could not complete task.";
+    }
+  });
+
   taskCard.innerHTML = `
     <div class="task-card-header">
       <div>
@@ -156,7 +180,12 @@ function createTaskCard(task) {
     </div>
   `;
 
-    taskCard.appendChild(deleteBtn);
+  actionsDiv.className = "form-actions";
+
+  actionsDiv.appendChild(completeBtn);
+  actionsDiv.appendChild(deleteBtn);
+
+  taskCard.appendChild(actionsDiv);
 
   return taskCard;
 }
