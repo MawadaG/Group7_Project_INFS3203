@@ -8,6 +8,12 @@ html {
   scroll-behavior: smooth;
 }
 
+.deployment-note {
+  margin-top: 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
 body {
   font-family: Arial, sans-serif;
   background-color: #f5f7fb;
