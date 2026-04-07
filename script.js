@@ -88,7 +88,7 @@ function setFormMessage(message, type = "") {
   if (type) formMessage.classList.add(type);
 }
 
-ffunction updateDashboardCards(tasks) {
+function updateDashboardCards(tasks) {
   const total = tasks.length;
   const completed = tasks.filter(
     (task) => (task.status || "").toLowerCase() === "completed"
