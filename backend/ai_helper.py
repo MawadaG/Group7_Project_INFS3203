@@ -6,8 +6,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-MODEL = "gemini-2.0-flash"  # Changed from gemini-2.5-flash-lite
-API_ENDPOINT = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent"
+MODEL = "gemini-2.5-flash-lite"
+API_ENDPOINT = f"https://aiplatform.googleapis.com/v1/publishers/google/models/{MODEL}:generateContent"
 
 def _call(prompt: str) -> str:
     api_key = os.getenv("GEMINI_API_KEY")
