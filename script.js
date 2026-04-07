@@ -481,10 +481,15 @@ async function handleGenerateSubtasks() {
     if (!response.ok) {
       throw new Error(result.error || "Failed to generate subtasks");
     }
-
+    
     generatedSubtasks = Array.isArray(result.subtasks) ? result.subtasks : [];
     renderGeneratedSubtasks();
-    setFormMessage("Subtasks generated successfully.", "success");
+    
+    if (generatedSubtasks.length === 0) {
+      setFormMessage("No subtasks were generated. Check the backend or AI key.", "error");
+    } else {
+      setFormMessage("Subtasks generated successfully.", "success");
+    }
   } catch (error) {
     console.error("Error generating subtasks:", error);
     generatedSubtasks = [];
