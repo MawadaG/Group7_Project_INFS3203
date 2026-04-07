@@ -1,11 +1,11 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from config.db import test_connection, get_db
 from ai_helper import generate_subtasks
 from bson import ObjectId
 from flask_cors import CORS
 import os
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='.', static_url_path='')
 CORS(app)
 
 @app.route("/")
@@ -263,6 +263,25 @@ def generate_task_subtasks(task_id):
     except Exception as e:
         print(f"Error in generate_task_subtasks: {e}")
         return jsonify({"error": str(e)}), 500
+    
+
+# Add these routes to serve frontend
+    @app.route('/index.html')
+    def serve_index():
+        return send_from_directory('.', 'index.html')
+
+    @app.route('/script.js')
+    def serve_script():
+        return send_from_directory('.', 'script.js')
+
+    @app.route('/style.css')
+    def serve_style():
+        return send_from_directory('.', 'style.css')
+
+    # Also serve the root path
+    @app.route('/')
+    def serve_frontend():
+        return send_from_directory('.', 'index.html')
 
 
 if __name__ == "__main__":
