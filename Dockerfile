@@ -10,6 +10,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the entire backend folder
 COPY backend/ ./backend/
+COPY index.html .
+COPY script.js .
+COPY style.css .
 
 # Set working directory to backend for Flask
 WORKDIR /app/backend
@@ -18,4 +21,4 @@ WORKDIR /app/backend
 EXPOSE 5000
 
 # Run with gunicorn for production
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app"]
+CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:${PORT:-5000} app:app"]

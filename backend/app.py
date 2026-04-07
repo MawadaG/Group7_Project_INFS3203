@@ -5,18 +5,27 @@ from bson import ObjectId
 from flask_cors import CORS
 import os
 
-app = Flask(__name__, static_folder='.', static_url_path='')
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+ROOT_DIR = os.path.abspath(os.path.join(BASE_DIR, ".."))
+
+app = Flask(__name__)
 CORS(app)
 
 @app.route("/")
 def home():
-    return "Smart Task Manager Backend Running"
+    return send_from_directory(ROOT_DIR, "index.html")
 
+@app.route("/style.css")
+def serve_css():
+    return send_from_directory(ROOT_DIR, "style.css")
+
+@app.route("/script.js")
+def serve_js():
+    return send_from_directory(ROOT_DIR, "script.js")
 
 @app.route("/health")
 def health():
     return {"status": "ok"}
-
 
 @app.route("/db-health")
 def db_health():
@@ -26,7 +35,6 @@ def db_health():
         return {"database": "not connected"}, 500
     except Exception as e:
         return {"database": "error", "error": str(e)}, 500
-
 
 # ==================== AI ENDPOINTS ====================
 
@@ -264,26 +272,6 @@ def generate_task_subtasks(task_id):
         print(f"Error in generate_task_subtasks: {e}")
         return jsonify({"error": str(e)}), 500
     
-
-# Add these routes to serve frontend
-    @app.route('/index.html')
-    def serve_index():
-        return send_from_directory('.', 'index.html')
-
-    @app.route('/script.js')
-    def serve_script():
-        return send_from_directory('.', 'script.js')
-
-    @app.route('/style.css')
-    def serve_style():
-        return send_from_directory('.', 'style.css')
-
-    # Also serve the root path
-    @app.route('/')
-    def serve_frontend():
-        return send_from_directory('.', 'index.html')
-
-
 if __name__ == "__main__":
     print("Starting Smart Task Manager...")
 
@@ -297,4 +285,4 @@ if __name__ == "__main__":
     else:
         print("GEMINI_API_KEY not set - AI features will return empty subtasks")
 
-    app.run(debug=True, host="0.0.0.0", port=5000)
+    app.run(debug=True, host="0.0.0.0", port=int(os.getenv("PORT", 5000)))
