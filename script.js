@@ -60,20 +60,6 @@ function formatDate(dateString) {
   return dateString;
 }
 
-function updateDashboardCards(tasks) {
-  const total = tasks.length;
-  const completed = tasks.filter(
-    (task) => (task.status || "").toLowerCase() === "completed"
-  ).length;
-  const pending = tasks.filter(
-    (task) => (task.status || "").toLowerCase() === "pending"
-  ).length;
-
-  totalTasksEl.textContent = total;
-  completedTasksEl.textContent = completed;
-  pendingTasksEl.textContent = pending;
-}
-
 function renderEmptyState(message) {
   taskList.innerHTML = `<div class="empty-state">${message}</div>`;
 }
@@ -86,6 +72,26 @@ function setFormMessage(message, type = "") {
   formMessage.textContent = message;
   formMessage.className = "form-message";
   if (type) formMessage.classList.add(type);
+}
+
+function renderGeneratedSubtasks() {
+  if (!subtasksList || !subtasksMessage) return;
+
+  subtasksList.innerHTML = "";
+
+  if (!Array.isArray(generatedSubtasks) || generatedSubtasks.length === 0) {
+    subtasksMessage.textContent = "No subtasks generated yet.";
+    return;
+  }
+
+  subtasksMessage.textContent = `${generatedSubtasks.length} subtask(s) generated.`;
+
+  generatedSubtasks.forEach((subtask, index) => {
+    const li = document.createElement("li");
+    li.className = "subtask-item";
+    li.textContent = `${index + 1}. ${subtask}`;
+    subtasksList.appendChild(li);
+  });
 }
 
 function updateDashboardCards(tasks) {
@@ -122,13 +128,6 @@ function updateDashboardCards(tasks) {
   if (taskProgressBarEl) {
     taskProgressBarEl.style.width = `${progressPercent}%`;
   }
-
-  generatedSubtasks.forEach((subtask, index) => {
-    const li = document.createElement("li");
-    li.className = "subtask-item";
-    li.textContent = `${index + 1}. ${subtask}`;
-    subtasksList.appendChild(li);
-  });
 }
 
 function clearGeneratedSubtasks() {
@@ -150,7 +149,6 @@ function createTaskCard(task) {
   const actionsDiv = document.createElement("div");
   const editBtn = document.createElement("button");
 
-
   deleteBtn.textContent = "Delete";
   deleteBtn.className = "secondary-btn";
 
@@ -164,9 +162,7 @@ function createTaskCard(task) {
         throw new Error("Failed to delete task");
       }
 
-      // Refresh tasks after deletion
-      loadTasks();
-
+      await loadTasks();
     } catch (error) {
       console.error("Error deleting task:", error);
     }
@@ -218,11 +214,9 @@ function createTaskCard(task) {
   });
 
   actionsDiv.className = "form-actions";
-
   actionsDiv.appendChild(editBtn);
   actionsDiv.appendChild(completeBtn);
   actionsDiv.appendChild(deleteBtn);
-
   taskCard.appendChild(actionsDiv);
 
   return taskCard;
@@ -531,7 +525,7 @@ async function handleTaskSubmit(event) {
   }
 
   submitBtn.disabled = true;
-  submitBtn.textContent = "Creating...";
+  submitBtn.textContent = editingTaskId ? "Updating..." : "Creating...";
   setFormMessage("Submitting task...");
 
   try {
@@ -548,25 +542,30 @@ async function handleTaskSubmit(event) {
       body: JSON.stringify(taskData)
     });
 
-    editingTaskId = null;
-    submitBtn.textContent = "Add Task";
-    
+    const result = await response.json().catch(() => ({}));
+
     if (!response.ok) {
-      throw new Error(result.error || "Failed to create task");
+      throw new Error(result.error || `Failed to ${editingTaskId ? "update" : "create"} task`);
     }
 
-    setFormMessage("Task created successfully.", "success");
+    const wasEditing = Boolean(editingTaskId);
+    editingTaskId = null;
+
+    setFormMessage(
+      wasEditing ? "Task updated successfully." : "Task created successfully.",
+      "success"
+    );
+
     taskForm.reset();
     clearGeneratedSubtasks();
     await loadTasks();
   } catch (error) {
-    console.error("Error creating task:", error);
-    setFormMessage(error.message || "Could not create task.", "error");
+    console.error("Error saving task:", error);
+    setFormMessage(error.message || "Could not save task.", "error");
   } finally {
     submitBtn.disabled = false;
     submitBtn.textContent = "Create Task";
   }
-  
 }
 
 function setupSidebarNavigation() {
