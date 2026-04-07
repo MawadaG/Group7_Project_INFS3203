@@ -162,7 +162,7 @@ function createTaskCard(task) {
         throw new Error("Failed to delete task");
       }
 
-      await loadTasks();
+      loadTasks();
     } catch (error) {
       console.error("Error deleting task:", error);
     }
@@ -190,19 +190,58 @@ function createTaskCard(task) {
     }
   });
 
+  // Create beautified subtasks HTML if they exist
+  let subtasksHtml = '';
+  if (task.subtasks && Array.isArray(task.subtasks) && task.subtasks.length > 0) {
+    const subtasksListItems = task.subtasks.map((subtask, index) => 
+      `<li class="subtask-display-item">
+        <span class="subtask-number">${index + 1}</span>
+        <span class="subtask-text">${subtask}</span>
+      </li>`
+    ).join('');
+    
+    subtasksHtml = `
+      <div class="task-subtasks-section">
+        <div class="subtasks-header">
+          <svg class="subtasks-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"></path>
+            <path d="M9 5a2 2 0 002 2h2a2 2 0 002-2h-2"></path>
+            <path d="M9 12l2 2 4-4"></path>
+          </svg>
+          <strong class="subtasks-title">Subtasks</strong>
+          <span class="subtasks-count">(${task.subtasks.length})</span>
+        </div>
+        <ul class="task-subtasks-list">
+          ${subtasksListItems}
+        </ul>
+      </div>
+    `;
+  }
+
   taskCard.innerHTML = `
     <div class="task-card-header">
       <div>
-        <h3>${title}</h3>
-        <p>${description}</p>
+        <h3 class="task-title">${escapeHtml(title)}</h3>
+        <p class="task-description">${escapeHtml(description)}</p>
       </div>
     </div>
 
-    <div class="task-details">
-      <span class="badge ${getPriorityClass(task.priority)}">Priority: ${priority}</span>
-      <span class="badge ${getStatusClass(task.status)}">Status: ${status}</span>
-      <span class="badge status-pending">Due: ${dueDate}</span>
+    <div class="task-meta-grid">
+      <div class="task-meta-item">
+        <span class="meta-label">Priority:</span>
+        <span class="badge ${getPriorityClass(task.priority)}">${priority}</span>
+      </div>
+      <div class="task-meta-item">
+        <span class="meta-label">Status:</span>
+        <span class="badge ${getStatusClass(task.status)}">${status}</span>
+      </div>
+      <div class="task-meta-item">
+        <span class="meta-label">Due Date:</span>
+        <span class="badge due-date-badge">${dueDate}</span>
+      </div>
     </div>
+    
+    ${subtasksHtml}
   `;
 
   editBtn.textContent = "Edit";
@@ -214,12 +253,24 @@ function createTaskCard(task) {
   });
 
   actionsDiv.className = "form-actions";
+  actionsDiv.style.marginTop = "15px";
+  actionsDiv.style.paddingTop = "15px";
+  actionsDiv.style.borderTop = "1px solid #e5e7eb";
+
   actionsDiv.appendChild(editBtn);
   actionsDiv.appendChild(completeBtn);
   actionsDiv.appendChild(deleteBtn);
+
   taskCard.appendChild(actionsDiv);
 
   return taskCard;
+}
+
+// Helper function to escape HTML to prevent XSS
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
 }
 
 function isOverdue(task) {
