@@ -34,33 +34,80 @@
           <h3>Total Tasks</h3>
           <p class="card-number" id="totalTasks">0</p>
         </div>
-      
+
         <div class="dashboard-card">
           <h3>Completed Tasks</h3>
           <p class="card-number" id="completedTasks">0</p>
         </div>
-      
+
         <div class="dashboard-card">
           <h3>Pending Tasks</h3>
           <p class="card-number" id="pendingTasks">0</p>
         </div>
-      
-        <div class="dashboard-card">
-          <h3>High Priority</h3>
-          <p class="card-number" id="highPriorityTasks">0</p>
-        </div>
-      
-        <div class="dashboard-card">
-          <h3>Overdue Tasks</h3>
-          <p class="card-number" id="overdueTasks">0</p>
-        </div>
       </section>
-      
-      <section class="dashboard-card progress-section">
-        <h2>Task Progress</h2>
-        <p id="taskProgressText">0% completed</p>
-        <div class="progress-bar">
-          <div class="progress-fill" id="taskProgressBar"></div>
+
+      <section class="form-section">
+        <div class="section-header">
+          <h2>Add New Task</h2>
+        </div>
+
+        <p id="formMessage" class="form-message"></p>
+
+        <form id="taskForm" class="task-form">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="title">Task Title *</label>
+              <input type="text" id="title" name="title" placeholder="Enter task title" required />
+            </div>
+
+            <div class="form-group">
+              <label for="due_date">Due Date</label>
+              <input type="date" id="due_date" name="due_date" />
+            </div>
+
+            <div class="form-group">
+              <label for="priority">Priority</label>
+              <select id="priority" name="priority">
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="status">Status</label>
+              <select id="status" name="status">
+                <option value="pending">Pending</option>
+                <option value="completed">Completed</option>
+                <option value="in-progress">In Progress</option>
+              </select>
+            </div>
+
+            <div class="form-group form-group-full">
+              <label for="project_id">Project ID (Optional)</label>
+              <input type="text" id="project_id" name="project_id" placeholder="Enter project ID" />
+            </div>
+
+            <div class="form-group form-group-full">
+              <label for="description">Description</label>
+              <textarea id="description" name="description" rows="4" placeholder="Enter task description"></textarea>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="secondary-btn" id="generateBtn">Generate Subtasks</button>
+            <button type="submit" class="submit-btn" id="submitBtn">Create Task</button>
+          </div>
+        </form>
+
+        <div class="subtasks-section">
+          <div class="section-header subtasks-header">
+            <h3>Generated Subtasks</h3>
+            <button type="button" class="clear-btn" id="clearSubtasksBtn">Clear</button>
+          </div>
+
+          <p id="subtasksMessage" class="form-message">No subtasks generated yet.</p>
+          <ul id="subtasksList" class="subtasks-list"></ul>
         </div>
       </section>
 
