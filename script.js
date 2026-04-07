@@ -25,6 +25,11 @@ const upcomingMessage = document.getElementById("upcomingMessage");
 const projectList = document.getElementById("projectList");
 const projectMessage = document.getElementById("projectMessage");
 
+const highPriorityTasksEl = document.getElementById("highPriorityTasks");
+const overdueTasksEl = document.getElementById("overdueTasks");
+const taskProgressTextEl = document.getElementById("taskProgressText");
+const taskProgressBarEl = document.getElementById("taskProgressBar");
+
 let generatedSubtasks = [];
 let editingTaskId = null;
 
@@ -83,19 +88,40 @@ function setFormMessage(message, type = "") {
   if (type) formMessage.classList.add(type);
 }
 
-function renderGeneratedSubtasks() {
-  if (!subtasksList || !subtasksMessage) return;
+ffunction updateDashboardCards(tasks) {
+  const total = tasks.length;
+  const completed = tasks.filter(
+    (task) => (task.status || "").toLowerCase() === "completed"
+  ).length;
+  const pending = tasks.filter(
+    (task) => (task.status || "").toLowerCase() === "pending"
+  ).length;
+  const highPriority = tasks.filter(
+    (task) => (task.priority || "").toLowerCase() === "high"
+  ).length;
+  const overdue = tasks.filter(isOverdue).length;
 
-  subtasksList.innerHTML = "";
+  const progressPercent = total === 0 ? 0 : Math.round((completed / total) * 100);
 
-  if (generatedSubtasks.length === 0) {
-    subtasksMessage.textContent = "No subtasks generated yet.";
-    subtasksMessage.className = "form-message";
-    return;
+  totalTasksEl.textContent = total;
+  completedTasksEl.textContent = completed;
+  pendingTasksEl.textContent = pending;
+
+  if (highPriorityTasksEl) {
+    highPriorityTasksEl.textContent = highPriority;
   }
 
-  subtasksMessage.textContent = `Generated ${generatedSubtasks.length} subtasks.`;
-  subtasksMessage.className = "form-message success";
+  if (overdueTasksEl) {
+    overdueTasksEl.textContent = overdue;
+  }
+
+  if (taskProgressTextEl) {
+    taskProgressTextEl.textContent = `${progressPercent}% completed`;
+  }
+
+  if (taskProgressBarEl) {
+    taskProgressBarEl.style.width = `${progressPercent}%`;
+  }
 
   generatedSubtasks.forEach((subtask, index) => {
     const li = document.createElement("li");
